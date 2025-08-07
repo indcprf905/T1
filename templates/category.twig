@@ -1,0 +1,648 @@
+{% extends "layouts/master.twig" %}
+
+{% block title %}{{ category.name }} - {{ store.name }}{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="{{ category.description | striptags | slice(0, 160) }}">
+    <meta property="og:title" content="{{ category.name }}">
+    <meta property="og:description" content="{{ category.description | striptags | slice(0, 160) }}">
+    <meta property="og:image" content="{{ category.image.url }}">
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb Navigation -->
+{% if theme.settings.layout.show_breadcrumb %}
+<nav class="breadcrumb-nav">
+    <div class="container">
+        <ol class="breadcrumb">
+            <li><a href="/">الرئيسية</a></li>
+            {% for parent in category.parents %}
+                <li><a href="{{ parent.url }}">{{ parent.name }}</a></li>
+            {% endfor %}
+            <li class="active">{{ category.name }}</li>
+        </ol>
+    </div>
+</nav>
+{% endif %}
+
+<!-- Category Header -->
+<section class="category-header">
+    <div class="container">
+        <div class="category-intro">
+            <h1 class="category-title">{{ category.name }}</h1>
+            {% if category.description %}
+                <p class="category-description">{{ category.description }}</p>
+            {% endif %}
+            <div class="category-meta">
+                <span class="products-count">{{ products.total }} منتج</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Category Content -->
+<section class="category-content">
+    <div class="container">
+        <div class="category-layout">
+            <!-- Sidebar Filters -->
+            {% if theme.settings.category.filters_sidebar %}
+            <aside class="filters-sidebar">
+                <div class="filters-header">
+                    <h3>تصفية النتائج</h3>
+                    <button class="clear-filters" onclick="clearAllFilters()">مسح الكل</button>
+                </div>
+                
+                <!-- Price Filter -->
+                <div class="filter-group">
+                    <h4 class="filter-title">النطاق السعري</h4>
+                    <div class="price-filter">
+                        <div class="price-range">
+                            <input type="range" id="minPrice" min="0" max="1000" value="0" class="price-slider">
+                            <input type="range" id="maxPrice" min="0" max="1000" value="1000" class="price-slider">
+                        </div>
+                        <div class="price-inputs">
+                            <div class="price-input-group">
+                                <label>من</label>
+                                <input type="number" id="minPriceInput" value="0" min="0">
+                                <span>ريال</span>
+                            </div>
+                            <div class="price-input-group">
+                                <label>إلى</label>
+                                <input type="number" id="maxPriceInput" value="1000" min="0">
+                                <span>ريال</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-sm apply-price-filter" onclick="applyPriceFilter()">تطبيق</button>
+                    </div>
+                </div>
+                
+                <!-- Brand Filter -->
+                {% if filters.brands %}
+                <div class="filter-group">
+                    <h4 class="filter-title">العلامة التجارية</h4>
+                    <div class="filter-options">
+                        {% for brand in filters.brands %}
+                            <label class="filter-option">
+                                <input type="checkbox" name="brand" value="{{ brand.id }}" {{ brand.id in selected_filters.brands ? 'checked' : '' }}>
+                                <span class="checkmark"></span>
+                                <span class="option-text">{{ brand.name }}</span>
+                                <span class="option-count">({{ brand.products_count }})</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Color Filter -->
+                {% if filters.colors %}
+                <div class="filter-group">
+                    <h4 class="filter-title">اللون</h4>
+                    <div class="color-options">
+                        {% for color in filters.colors %}
+                            <label class="color-filter-option">
+                                <input type="checkbox" name="color" value="{{ color.id }}" {{ color.id in selected_filters.colors ? 'checked' : '' }}>
+                                <span class="color-swatch" style="background-color: {{ color.hex_code }}" title="{{ color.name }}"></span>
+                                <span class="color-name">{{ color.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Size Filter -->
+                {% if filters.sizes %}
+                <div class="filter-group">
+                    <h4 class="filter-title">المقاس</h4>
+                    <div class="size-options">
+                        {% for size in filters.sizes %}
+                            <label class="size-filter-option">
+                                <input type="checkbox" name="size" value="{{ size.id }}" {{ size.id in selected_filters.sizes ? 'checked' : '' }}>
+                                <span class="size-label">{{ size.name }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Rating Filter -->
+                <div class="filter-group">
+                    <h4 class="filter-title">التقييم</h4>
+                    <div class="rating-options">
+                        {% for i in 4..1 %}
+                            <label class="rating-filter-option">
+                                <input type="radio" name="rating" value="{{ i }}" {{ i == selected_filters.rating ? 'checked' : '' }}>
+                                <div class="rating-display">
+                                    {% for j in 1..5 %}
+                                        <span class="star {{ j <= i ? 'filled' : '' }}">★</span>
+                                    {% endfor %}
+                                    <span class="rating-text">{{ i }} فأكثر</span>
+                                </div>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Availability Filter -->
+                <div class="filter-group">
+                    <h4 class="filter-title">التوفر</h4>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="checkbox" name="availability" value="in_stock" {{ 'in_stock' in selected_filters.availability ? 'checked' : '' }}>
+                            <span class="checkmark"></span>
+                            <span class="option-text">متوفر</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" name="availability" value="on_sale" {{ 'on_sale' in selected_filters.availability ? 'checked' : '' }}>
+                            <span class="checkmark"></span>
+                            <span class="option-text">خصم</span>
+                        </label>
+                    </div>
+                </div>
+            </aside>
+            {% endif %}
+            
+            <!-- Main Content Area -->
+            <main class="products-main">
+                <!-- Toolbar -->
+                <div class="products-toolbar">
+                    <div class="toolbar-left">
+                        <div class="view-options">
+                            <button class="view-btn grid-view active" onclick="switchView('grid')" title="عرض شبكي">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <rect x="3" y="3" width="7" height="7"/>
+                                    <rect x="14" y="3" width="7" height="7"/>
+                                    <rect x="3" y="14" width="7" height="7"/>
+                                    <rect x="14" y="14" width="7" height="7"/>
+                                </svg>
+                            </button>
+                            <button class="view-btn list-view" onclick="switchView('list')" title="عرض قائمة">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <line x1="8" y1="6" x2="21" y2="6"/>
+                                    <line x1="8" y1="12" x2="21" y2="12"/>
+                                    <line x1="8" y1="18" x2="21" y2="18"/>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"/>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"/>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="products-count-mobile">
+                            {{ products.total }} منتج
+                        </div>
+                    </div>
+                    
+                    <div class="toolbar-right">
+                        {% if theme.settings.category.sort_options %}
+                        <div class="sort-options">
+                            <label for="sortBy">ترتيب حسب:</label>
+                            <select id="sortBy" name="sort" onchange="applySortFilter()">
+                                <option value="default" {{ sort == 'default' ? 'selected' : '' }}>الافتراضي</option>
+                                <option value="name_asc" {{ sort == 'name_asc' ? 'selected' : '' }}>الاسم أ-ي</option>
+                                <option value="name_desc" {{ sort == 'name_desc' ? 'selected' : '' }}>الاسم ي-أ</option>
+                                <option value="price_asc" {{ sort == 'price_asc' ? 'selected' : '' }}>السعر من الأقل</option>
+                                <option value="price_desc" {{ sort == 'price_desc' ? 'selected' : '' }}>السعر من الأعلى</option>
+                                <option value="newest" {{ sort == 'newest' ? 'selected' : '' }}>الأحدث</option>
+                                <option value="rating" {{ sort == 'rating' ? 'selected' : '' }}>الأعلى تقييماً</option>
+                                <option value="popularity" {{ sort == 'popularity' ? 'selected' : '' }}>الأكثر شعبية</option>
+                            </select>
+                        </div>
+                        {% endif %}
+                        
+                        <button class="mobile-filters-toggle" onclick="toggleMobileFilters()">
+                            فلترة
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Active Filters -->
+                <div class="active-filters" id="activeFilters" style="display: none;">
+                    <span class="active-filters-label">الفلاتر المطبقة:</span>
+                    <div class="active-filters-list"></div>
+                </div>
+                
+                <!-- Products Grid -->
+                <div class="products-container">
+                    {% if products.data | length > 0 %}
+                        <div class="products-grid" id="productsGrid">
+                            {% for product in products.data %}
+                                <div class="product-card" data-product-id="{{ product.id }}">
+                                    <div class="product-image">
+                                        <a href="{{ product.url }}">
+                                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="main-image">
+                                            {% if product.images | length > 1 %}
+                                                <img src="{{ product.images[1].url }}" alt="{{ product.name }}" loading="lazy" class="hover-image">
+                                            {% endif %}
+                                        </a>
+                                        
+                                        <!-- Product Badges -->
+                                        <div class="product-badges">
+                                            {% if product.sale_price %}
+                                                <span class="badge discount">-{{ ((product.regular_price - product.sale_price) / product.regular_price * 100) | round }}%</span>
+                                            {% endif %}
+                                            {% if product.is_new %}
+                                                <span class="badge new">جديد</span>
+                                            {% endif %}
+                                            {% if product.is_featured %}
+                                                <span class="badge featured">مميز</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <!-- Quick Actions -->
+                                        <div class="product-actions">
+                                            <button class="action-btn wishlist-btn" onclick="toggleWishlist({{ product.id }})" title="إضافة للمفضلة">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="action-btn quick-view-btn" onclick="quickView({{ product.id }})" title="عرض سريع">
+                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                                    <circle cx="12" cy="12" r="3"></circle>
+                                                </svg>
+                                            </button>
+                                            {% if product.is_available %}
+                                                <button class="action-btn add-cart-btn" onclick="addToCart({{ product.id }})" title="إضافة للسلة">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <circle cx="9" cy="21" r="1"></circle>
+                                                        <circle cx="20" cy="21" r="1"></circle>
+                                                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                                    </svg>
+                                                </button>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="product-info">
+                                        <h3 class="product-name">
+                                            <a href="{{ product.url }}">{{ product.name }}</a>
+                                        </h3>
+                                        
+                                        {% if product.brand %}
+                                            <div class="product-brand">{{ product.brand.name }}</div>
+                                        {% endif %}
+                                        
+                                        <div class="product-rating">
+                                            <div class="stars">
+                                                {% for i in 1..5 %}
+                                                    <span class="star {{ i <= product.rating.average ? 'filled' : '' }}">★</span>
+                                                {% endfor %}
+                                            </div>
+                                            <span class="rating-count">({{ product.rating.count }})</span>
+                                        </div>
+                                        
+                                        <div class="product-price">
+                                            {% if product.sale_price %}
+                                                <span class="current-price">{{ product.sale_price }} ريال</span>
+                                                <span class="original-price">{{ product.regular_price }} ريال</span>
+                                            {% else %}
+                                                <span class="current-price">{{ product.price }} ريال</span>
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div class="product-description">
+                                            {{ product.summary | slice(0, 100) }}...
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Pagination -->
+                        {% if products.total > theme.settings.category.products_per_page %}
+                            <div class="pagination-wrapper">
+                                {{ include('partials/pagination.twig', { pagination: products }) }}
+                            </div>
+                        {% endif %}
+                        
+                    {% else %}
+                        <!-- No Products Found -->
+                        <div class="no-products">
+                            <div class="no-products-icon">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="M21 21l-4.35-4.35"></path>
+                                </svg>
+                            </div>
+                            <h3>لا توجد منتجات</h3>
+                            <p>لم نتمكن من العثور على منتجات تطابق معايير البحث الخاصة بك.</p>
+                            <button class="btn btn-primary" onclick="clearAllFilters()">مسح جميع الفلاتر</button>
+                        </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+</section>
+
+<!-- Mobile Filters Overlay -->
+<div class="mobile-filters-overlay" id="mobileFiltersOverlay">
+    <div class="mobile-filters-content">
+        <div class="mobile-filters-header">
+            <h3>تصفية النتائج</h3>
+            <button class="close-mobile-filters" onclick="toggleMobileFilters()">×</button>
+        </div>
+        <div class="mobile-filters-body">
+            <!-- Same filter content as sidebar, will be populated by JavaScript -->
+        </div>
+        <div class="mobile-filters-footer">
+            <button class="btn btn-outline" onclick="clearAllFilters()">مسح الكل</button>
+            <button class="btn btn-primary" onclick="applyMobileFilters()">تطبيق الفلاتر</button>
+        </div>
+    </div>
+</div>
+
+<!-- Quick View Modal -->
+<div class="quick-view-modal" id="quickViewModal">
+    <div class="modal-overlay" onclick="closeQuickView()"></div>
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeQuickView()">×</button>
+        <div class="quick-view-content">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// View switching
+function switchView(viewType) {
+    const gridView = document.querySelector('.grid-view');
+    const listView = document.querySelector('.list-view');
+    const productsGrid = document.getElementById('productsGrid');
+    
+    if (viewType === 'grid') {
+        gridView.classList.add('active');
+        listView.classList.remove('active');
+        productsGrid.classList.remove('list-view');
+        productsGrid.classList.add('grid-view');
+    } else {
+        listView.classList.add('active');
+        gridView.classList.remove('active');
+        productsGrid.classList.add('list-view');
+        productsGrid.classList.remove('grid-view');
+    }
+    
+    localStorage.setItem('preferred-view', viewType);
+}
+
+// Load saved view preference
+window.addEventListener('DOMContentLoaded', () => {
+    const savedView = localStorage.getItem('preferred-view') || 'grid';
+    switchView(savedView);
+});
+
+// Mobile filters toggle
+function toggleMobileFilters() {
+    const overlay = document.getElementById('mobileFiltersOverlay');
+    overlay.classList.toggle('active');
+    document.body.style.overflow = overlay.classList.contains('active') ? 'hidden' : 'auto';
+}
+
+// Price filter
+function applyPriceFilter() {
+    const minPrice = document.getElementById('minPriceInput').value;
+    const maxPrice = document.getElementById('maxPriceInput').value;
+    
+    const url = new URL(window.location);
+    url.searchParams.set('min_price', minPrice);
+    url.searchParams.set('max_price', maxPrice);
+    window.location.href = url.toString();
+}
+
+// Sort filter
+function applySortFilter() {
+    const sortValue = document.getElementById('sortBy').value;
+    const url = new URL(window.location);
+    url.searchParams.set('sort', sortValue);
+    window.location.href = url.toString();
+}
+
+// Clear all filters
+function clearAllFilters() {
+    const url = new URL(window.location);
+    const params = new URLSearchParams();
+    window.location.href = url.pathname;
+}
+
+// Filter change handlers
+document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+    input.addEventListener('change', function() {
+        updateActiveFilters();
+        applyFilters();
+    });
+});
+
+// Update active filters display
+function updateActiveFilters() {
+    const activeFiltersContainer = document.getElementById('activeFilters');
+    const activeFiltersList = activeFiltersContainer.querySelector('.active-filters-list');
+    
+    activeFiltersList.innerHTML = '';
+    
+    // Collect active filters
+    const activeFilters = [];
+    
+    document.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked').forEach(input => {
+        const filterGroup = input.closest('.filter-group');
+        const groupTitle = filterGroup.querySelector('.filter-title').textContent;
+        const optionText = input.closest('label').querySelector('.option-text, .color-name, .size-label, .rating-text')?.textContent;
+        
+        if (optionText) {
+            activeFilters.push({
+                group: groupTitle,
+                value: optionText,
+                input: input
+            });
+        }
+    });
+    
+    if (activeFilters.length > 0) {
+        activeFiltersContainer.style.display = 'block';
+        
+        activeFilters.forEach(filter => {
+            const filterTag = document.createElement('span');
+            filterTag.className = 'filter-tag';
+            filterTag.innerHTML = `
+                ${filter.group}: ${filter.value}
+                <button onclick="removeFilter(this)" data-input-name="${filter.input.name}" data-input-value="${filter.input.value}">×</button>
+            `;
+            activeFiltersList.appendChild(filterTag);
+        });
+    } else {
+        activeFiltersContainer.style.display = 'none';
+    }
+}
+
+// Remove individual filter
+function removeFilter(button) {
+    const inputName = button.dataset.inputName;
+    const inputValue = button.dataset.inputValue;
+    
+    const input = document.querySelector(`input[name="${inputName}"][value="${inputValue}"]`);
+    if (input) {
+        input.checked = false;
+        updateActiveFilters();
+        applyFilters();
+    }
+}
+
+// Apply filters (AJAX or page reload)
+function applyFilters() {
+    // Build URL with filter parameters
+    const url = new URL(window.location);
+    const formData = new FormData();
+    
+    document.querySelectorAll('input[type="checkbox"]:checked, input[type="radio"]:checked').forEach(input => {
+        url.searchParams.append(input.name, input.value);
+    });
+    
+    // Reload page with new filters
+    window.location.href = url.toString();
+}
+
+// Product interactions
+function toggleWishlist(productId) {
+    const button = document.querySelector(`[data-product-id="${productId}"] .wishlist-btn`);
+    button.classList.toggle('active');
+    
+    // Show notification
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.textContent = button.classList.contains('active') ? 
+        'تمت الإضافة للمفضلة' : 'تمت الإزالة من المفضلة';
+    
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+function addToCart(productId) {
+    const button = document.querySelector(`[data-product-id="${productId}"] .add-cart-btn`);
+    const originalHTML = button.innerHTML;
+    
+    button.innerHTML = '<div class="spinner"></div>';
+    button.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        button.innerHTML = '✓';
+        
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        }, 2000);
+    }, 1000);
+}
+
+function quickView(productId) {
+    const modal = document.getElementById('quickViewModal');
+    const content = modal.querySelector('.quick-view-content');
+    
+    // Show modal with loading
+    content.innerHTML = '<div class="loading">جاري التحميل...</div>';
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    // Simulate loading product data
+    setTimeout(() => {
+        content.innerHTML = `
+            <div class="quick-view-product">
+                <div class="product-image">
+                    <img src="/assets/products/sample.jpg" alt="منتج">
+                </div>
+                <div class="product-details">
+                    <h3>اسم المنتج</h3>
+                    <div class="price">299 ريال</div>
+                    <p>وصف مختصر للمنتج...</p>
+                    <button class="btn btn-primary">إضافة للسلة</button>
+                    <a href="/products/${productId}" class="btn btn-outline">عرض التفاصيل</a>
+                </div>
+            </div>
+        `;
+    }, 1000);
+}
+
+function closeQuickView() {
+    const modal = document.getElementById('quickViewModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Price range sliders
+function initPriceSliders() {
+    const minSlider = document.getElementById('minPrice');
+    const maxSlider = document.getElementById('maxPrice');
+    const minInput = document.getElementById('minPriceInput');
+    const maxInput = document.getElementById('maxPriceInput');
+    
+    if (minSlider && maxSlider) {
+        minSlider.addEventListener('input', () => {
+            minInput.value = minSlider.value;
+            if (parseInt(minSlider.value) >= parseInt(maxSlider.value)) {
+                maxSlider.value = parseInt(minSlider.value) + 10;
+                maxInput.value = maxSlider.value;
+            }
+        });
+        
+        maxSlider.addEventListener('input', () => {
+            maxInput.value = maxSlider.value;
+            if (parseInt(maxSlider.value) <= parseInt(minSlider.value)) {
+                minSlider.value = parseInt(maxSlider.value) - 10;
+                minInput.value = minSlider.value;
+            }
+        });
+        
+        minInput.addEventListener('input', () => {
+            minSlider.value = minInput.value;
+        });
+        
+        maxInput.addEventListener('input', () => {
+            maxSlider.value = maxInput.value;
+        });
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    initPriceSliders();
+    updateActiveFilters();
+});
+
+// Infinite scroll (optional)
+let page = 1;
+let loading = false;
+
+function loadMoreProducts() {
+    if (loading) return;
+    
+    loading = true;
+    page++;
+    
+    // Show loading indicator
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'loading-more';
+    loadingDiv.textContent = 'جاري تحميل المزيد...';
+    document.querySelector('.products-grid').appendChild(loadingDiv);
+    
+    // Simulate API call
+    setTimeout(() => {
+        loadingDiv.remove();
+        loading = false;
+        // Add more products to grid...
+    }, 2000);
+}
+
+// Check if infinite scroll is enabled and add scroll listener
+if (window.innerWidth <= 768) { // Mobile only
+    window.addEventListener('scroll', () => {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+            loadMoreProducts();
+        }
+    });
+}
+</script>
+{% endblock %}

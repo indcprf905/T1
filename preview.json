@@ -1,0 +1,74 @@
+{
+  "name": "Noor",
+  "displayName": "نور - ثيم فاخر",
+  "version": "1.0.0",
+  "description": "ثيم احترافي متكامل لمنصة سلة مصمم خصيصاً للمتاجر الفاخرة والعطور والإكسسوارات",
+  "author": "Noor Design Team",
+  "tags": ["فاخر", "عطور", "إكسسوارات", "تجارة إلكترونية", "احترافي"],
+  "category": "fashion",
+  "preview": {
+    "desktop": "preview-desktop.jpg",
+    "mobile": "preview-mobile.jpg"
+  },
+  "features": [
+    "تصميم متجاوب تماماً",
+    "دعم كامل للغة العربية",
+    "أنماط ألوان متعددة (فاتح/داكن/تلقائي)",
+    "قابل للتخصيص من لوحة التحكم",
+    "محسن لمحركات البحث SEO",
+    "سرعة تحميل عالية",
+    "تجربة مستخدم مميزة",
+    "دعم لجميع منتجات سلة"
+  ],
+  "demo": {
+    "url": "https://noor-demo.salla.sa",
+    "store_name": "متجر نور النموذجي",
+    "admin_url": "https://s.salla.sa/noor-demo"
+  },
+  "support": {
+    "documentation": "https://docs.noor-theme.com",
+    "email": "support@noor-theme.com",
+    "whatsapp": "+966500000000"
+  },
+  "compatibility": {
+    "salla_version": ">=2.0.0",
+    "php_version": ">=7.4",
+    "features": [
+      "multi_language",
+      "rtl_support", 
+      "mobile_responsive",
+      "seo_optimized",
+      "custom_fields",
+      "advanced_filtering"
+    ]
+  },
+  "theme_options": {
+    "customizable_colors": true,
+    "multiple_layouts": true,
+    "custom_fonts": true,
+    "banner_management": true,
+    "widget_areas": true
+  },
+  "screenshots": [
+    {
+      "title": "الصفحة الرئيسية",
+      "image": "screenshots/homepage.jpg",
+      "description": "عرض الصفحة الرئيسية مع البانر والمنتجات المختارة"
+    },
+    {
+      "title": "صفحة المنتج",
+      "image": "screenshots/product.jpg", 
+      "description": "صفحة تفاصيل المنتج مع معرض الصور والخيارات"
+    },
+    {
+      "title": "صفحة الفئات",
+      "image": "screenshots/category.jpg",
+      "description": "صفحة عرض المنتجات مع الفلاتر والترتيب"
+    },
+    {
+      "title": "النسخة المحمولة",
+      "image": "screenshots/mobile.jpg",
+      "description": "تصميم متجاوب ومحسن للأجهزة المحمولة"
+    }
+  ]
+}

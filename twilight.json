@@ -1,0 +1,234 @@
+{
+  "name": "Noor",
+  "displayName": "نور - ثيم فاخر",
+  "version": "1.0.0",
+  "description": "ثيم احترافي متكامل لمنصة سلة مصمم خصيصاً للمتاجر الفاخرة والعطور والإكسسوارات",
+  "author": "Noor Design Team",
+  "screenshot": "preview.jpg",
+  
+  "settings": {
+    "colors": {
+      "primary": {
+        "type": "color",
+        "label": "اللون الأساسي",
+        "default": "#3A6B83",
+        "description": "اللون الرئيسي للثيم"
+      },
+      "secondary": {
+        "type": "color", 
+        "label": "اللون الثانوي",
+        "default": "#F5F5F0",
+        "description": "اللون الثانوي للخلفيات والعناصر الفرعية"
+      },
+      "text": {
+        "type": "color",
+        "label": "لون النصوص",
+        "default": "#333333",
+        "description": "لون النصوص الأساسية"
+      },
+      "accent": {
+        "type": "color",
+        "label": "لون التمييز",
+        "default": "#E8B856",
+        "description": "لون للعناصر المميزة والأزرار"
+      },
+      "background": {
+        "type": "color",
+        "label": "لون الخلفية",
+        "default": "#FFFFFF",
+        "description": "لون خلفية الموقع"
+      }
+    },
+    
+    "typography": {
+      "font_family": {
+        "type": "select",
+        "label": "نوع الخط",
+        "default": "Tajawal",
+        "options": [
+          {"value": "Tajawal", "label": "تجوال"},
+          {"value": "Cairo", "label": "القاهرة"},
+          {"value": "Inter", "label": "إنتر"},
+          {"value": "Almarai", "label": "المرعي"},
+          {"value": "Amiri", "label": "أميري"}
+        ]
+      },
+      "font_size": {
+        "type": "range",
+        "label": "حجم الخط",
+        "default": 16,
+        "min": 12,
+        "max": 24,
+        "unit": "px"
+      }
+    },
+    
+    "theme_mode": {
+      "type": "select",
+      "label": "نمط الألوان",
+      "default": "light",
+      "options": [
+        {"value": "light", "label": "فاتح"},
+        {"value": "dark", "label": "داكن"},
+        {"value": "auto", "label": "تلقائي"}
+      ]
+    },
+    
+    "layout": {
+      "header_style": {
+        "type": "select",
+        "label": "نمط الهيدر",
+        "default": "classic",
+        "options": [
+          {"value": "classic", "label": "كلاسيكي"},
+          {"value": "minimal", "label": "بسيط"},
+          {"value": "centered", "label": "وسط"}
+        ]
+      },
+      "show_breadcrumb": {
+        "type": "checkbox",
+        "label": "إظهار مسار التنقل",
+        "default": true
+      },
+      "products_per_row": {
+        "type": "select",
+        "label": "عدد المنتجات في الصف",
+        "default": 3,
+        "options": [
+          {"value": 2, "label": "2"},
+          {"value": 3, "label": "3"},
+          {"value": 4, "label": "4"}
+        ]
+      }
+    },
+    
+    "homepage": {
+      "hero_title": {
+        "type": "text",
+        "label": "عنوان البانر الرئيسي",
+        "default": "مرحبًا بكم في متجر نور – وجهتكم المختارة لأجود العطور والإكسسوارات الفاخرة"
+      },
+      "hero_subtitle": {
+        "type": "textarea",
+        "label": "النص الفرعي للبانر",
+        "default": "اكتشف مجموعة مختارة من أفخم العطور والإكسسوارات المميزة"
+      },
+      "hero_button_text": {
+        "type": "text",
+        "label": "نص زر البانر",
+        "default": "تسوق الآن"
+      },
+      "hero_button_link": {
+        "type": "text",
+        "label": "رابط زر البانر",
+        "default": "/categories/all"
+      },
+      "show_featured_products": {
+        "type": "checkbox",
+        "label": "إظهار المنتجات المختارة",
+        "default": true
+      },
+      "featured_products_title": {
+        "type": "text",
+        "label": "عنوان المنتجات المختارة",
+        "default": "منتجات مختارة"
+      }
+    },
+    
+    "banners": {
+      "banner1_title": {
+        "type": "text",
+        "label": "عنوان البانر الأول",
+        "default": "عرض الصيف - خصم حتى ٥٠٪"
+      },
+      "banner1_subtitle": {
+        "type": "text",
+        "label": "النص الفرعي للبانر الأول",
+        "default": "تسوق الآن واستفد من العروض الموسمية"
+      },
+      "banner1_link": {
+        "type": "text",
+        "label": "رابط البانر الأول",
+        "default": "/offers"
+      },
+      "banner2_title": {
+        "type": "text",
+        "label": "عنوان البانر الثاني",
+        "default": "وصل حديثًا"
+      },
+      "banner2_subtitle": {
+        "type": "text",
+        "label": "النص الفرعي للبانر الثاني", 
+        "default": "اكتشف أحدث المنتجات المضافة"
+      },
+      "banner2_link": {
+        "type": "text",
+        "label": "رابط البانر الثاني",
+        "default": "/new"
+      },
+      "banner3_title": {
+        "type": "text",
+        "label": "عنوان البانر الثالث",
+        "default": "بطاقات الهدايا"
+      },
+      "banner3_subtitle": {
+        "type": "text",
+        "label": "النص الفرعي للبانر الثالث",
+        "default": "فاجئ من تحب بهدية رقمية فاخرة"
+      },
+      "banner3_link": {
+        "type": "text",
+        "label": "رابط البانر الثالث",
+        "default": "/gift-cards"
+      }
+    },
+    
+    "features": {
+      "show_features": {
+        "type": "checkbox",
+        "label": "إظهار قسم المميزات",
+        "default": true
+      },
+      "feature1_title": {
+        "type": "text",
+        "label": "عنوان الميزة الأولى",
+        "default": "شحن سريع"
+      },
+      "feature1_description": {
+        "type": "text",
+        "label": "وصف الميزة الأولى",
+        "default": "توصيل خلال 24 ساعة"
+      },
+      "feature2_title": {
+        "type": "text",
+        "label": "عنوان الميزة الثانية",
+        "default": "تغليف فاخر"
+      },
+      "feature2_description": {
+        "type": "text",
+        "label": "وصف الميزة الثانية",
+        "default": "تغليف فاخر مجاني"
+      },
+      "feature3_title": {
+        "type": "text",
+        "label": "عنوان الميزة الثالثة",
+        "default": "ضمان الاسترجاع"
+      },
+      "feature3_description": {
+        "type": "text",
+        "label": "وصف الميزة الثالثة",
+        "default": "استرجاع خلال 7 أيام"
+      },
+      "feature4_title": {
+        "type": "text",
+        "label": "عنوان الميزة الرابعة",
+        "default": "دعم فوري"
+      },
+      "feature4_description": {
+        "type": "text",
+        "label": "وصف الميزة الرابعة",
+        "default": "دعم عبر WhatsApp"
+      }
+    }
+  }
+}
