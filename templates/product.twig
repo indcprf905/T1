@@ -1,0 +1,614 @@
+{% extends "layouts/master.twig" %}
+
+{% block title %}{{ product.name }} - {{ store.name }}{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="{{ product.description | striptags | slice(0, 160) }}">
+    <meta property="og:title" content="{{ product.name }}">
+    <meta property="og:description" content="{{ product.description | striptags | slice(0, 160) }}">
+    <meta property="og:image" content="{{ product.image.url }}">
+    <meta property="og:type" content="product">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": "{{ product.name }}",
+        "image": "{{ product.image.url }}",
+        "description": "{{ product.description | striptags }}",
+        "brand": {
+            "@type": "Brand", 
+            "name": "{{ product.brand.name ?: store.name }}"
+        },
+        "offers": {
+            "@type": "Offer",
+            "priceCurrency": "SAR",
+            "price": "{{ product.price }}",
+            "availability": "{{ product.is_available ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock' }}"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "{{ product.rating.average }}",
+            "reviewCount": "{{ product.rating.count }}"
+        }
+    }
+    </script>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb Navigation -->
+{% if theme.settings.layout.show_breadcrumb %}
+<nav class="breadcrumb-nav">
+    <div class="container">
+        <ol class="breadcrumb">
+            <li><a href="/">الرئيسية</a></li>
+            {% for category in product.categories %}
+                <li><a href="{{ category.url }}">{{ category.name }}</a></li>
+            {% endfor %}
+            <li class="active">{{ product.name }}</li>
+        </ol>
+    </div>
+</nav>
+{% endif %}
+
+<!-- Product Details Section -->
+<section class="product-details">
+    <div class="container">
+        <div class="product-layout">
+            <!-- Product Images Gallery -->
+            <div class="product-images">
+                <div class="main-image">
+                    <img id="mainProductImage" src="{{ product.image.url }}" alt="{{ product.name }}" class="main-img">
+                    {% if product.sale_price %}
+                        <span class="discount-badge">
+                            -{{ ((product.regular_price - product.sale_price) / product.regular_price * 100) | round }}%
+                        </span>
+                    {% endif %}
+                    
+                    <!-- Product Badges -->
+                    <div class="product-badges">
+                        {% if product.is_new %}
+                            <span class="badge new">جديد</span>
+                        {% endif %}
+                        {% if product.is_featured %}
+                            <span class="badge featured">مميز</span>
+                        {% endif %}
+                        {% if product.is_hot %}
+                            <span class="badge hot">الأكثر مبيعاً</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Image Zoom -->
+                    <div class="zoom-icon" onclick="openImageZoom()">🔍</div>
+                </div>
+                
+                <!-- Thumbnail Images -->
+                {% if product.images | length > 1 %}
+                <div class="thumbnail-gallery">
+                    {% for image in product.images %}
+                        <div class="thumbnail {{ loop.first ? 'active' : '' }}" onclick="changeMainImage('{{ image.url }}', this)">
+                            <img src="{{ image.url }}" alt="{{ product.name }}">
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Product Information -->
+            <div class="product-info">
+                <div class="product-header">
+                    <h1 class="product-title">{{ product.name }}</h1>
+                    
+                    <!-- Product Rating -->
+                    <div class="product-rating">
+                        <div class="stars-container">
+                            {% for i in 1..5 %}
+                                <span class="star {{ i <= product.rating.average ? 'filled' : '' }}">★</span>
+                            {% endfor %}
+                        </div>
+                        <span class="rating-text">({{ product.rating.average }}/5)</span>
+                        <span class="review-count">{{ product.rating.count }} تقييم</span>
+                    </div>
+                    
+                    <!-- Product Code -->
+                    <div class="product-meta">
+                        <span class="product-sku">كود المنتج: {{ product.sku }}</span>
+                        <span class="product-availability {{ product.is_available ? 'in-stock' : 'out-of-stock' }}">
+                            {{ product.is_available ? 'متوفر' : 'غير متوفر' }}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Product Price -->
+                <div class="product-pricing">
+                    {% if product.sale_price %}
+                        <span class="current-price">{{ product.sale_price }} ريال</span>
+                        <span class="original-price">{{ product.regular_price }} ريال</span>
+                        <span class="save-amount">توفر {{ product.regular_price - product.sale_price }} ريال</span>
+                    {% else %}
+                        <span class="current-price">{{ product.price }} ريال</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Product Description -->
+                <div class="product-description">
+                    <h3>وصف المنتج</h3>
+                    <div class="description-content">
+                        {{ product.description | raw }}
+                    </div>
+                </div>
+                
+                <!-- Product Options -->
+                {% if product.options %}
+                <div class="product-options">
+                    {% for option in product.options %}
+                        <div class="option-group">
+                            <label class="option-label">{{ option.name }}</label>
+                            <div class="option-values">
+                                {% if option.type == 'color' %}
+                                    {% for value in option.values %}
+                                        <label class="color-option">
+                                            <input type="radio" name="option_{{ option.id }}" value="{{ value.id }}" {{ loop.first ? 'checked' : '' }}>
+                                            <span class="color-swatch" style="background-color: {{ value.color_code }}" title="{{ value.name }}"></span>
+                                        </label>
+                                    {% endfor %}
+                                {% elseif option.type == 'size' %}
+                                    <select name="option_{{ option.id }}" class="size-select">
+                                        {% for value in option.values %}
+                                            <option value="{{ value.id }}">{{ value.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                {% else %}
+                                    {% for value in option.values %}
+                                        <label class="text-option">
+                                            <input type="radio" name="option_{{ option.id }}" value="{{ value.id }}" {{ loop.first ? 'checked' : '' }}>
+                                            <span>{{ value.name }}</span>
+                                        </label>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Quantity and Add to Cart -->
+                <div class="purchase-section">
+                    <div class="quantity-selector">
+                        <label for="quantity">الكمية:</label>
+                        <div class="quantity-input">
+                            <button type="button" class="qty-btn minus" onclick="changeQuantity(-1)">-</button>
+                            <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.max_quantity }}">
+                            <button type="button" class="qty-btn plus" onclick="changeQuantity(1)">+</button>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        {% if product.is_available %}
+                            <button class="btn btn-primary btn-add-cart" onclick="addToCart()">
+                                <span class="btn-text">إضافة للسلة</span>
+                                <span class="btn-icon">🛒</span>
+                            </button>
+                            <button class="btn btn-secondary btn-buy-now" onclick="buyNow()">
+                                شراء فوري
+                            </button>
+                        {% else %}
+                            <button class="btn btn-disabled" disabled>غير متوفر</button>
+                        {% endif %}
+                        
+                        <button class="btn btn-wishlist" onclick="toggleWishlist()" title="إضافة للمفضلة">
+                            <span class="wishlist-icon">♡</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Product Features -->
+                <div class="product-features">
+                    <div class="feature-item">
+                        <span class="feature-icon">🚚</span>
+                        <span class="feature-text">شحن مجاني للطلبات أكثر من 200 ريال</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">↩️</span>
+                        <span class="feature-text">إمكانية الاسترجاع خلال 7 أيام</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">🎁</span>
+                        <span class="feature-text">تغليف فاخر مجاني</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">💳</span>
+                        <span class="feature-text">دفع آمن ومضمون</span>
+                    </div>
+                </div>
+                
+                <!-- Social Share -->
+                <div class="social-share">
+                    <h4>شارك المنتج</h4>
+                    <div class="share-buttons">
+                        <a href="#" class="share-btn whatsapp" onclick="shareOnWhatsApp()">WhatsApp</a>
+                        <a href="#" class="share-btn twitter" onclick="shareOnTwitter()">Twitter</a>
+                        <a href="#" class="share-btn facebook" onclick="shareOnFacebook()">Facebook</a>
+                        <button class="share-btn copy-link" onclick="copyProductLink()">نسخ الرابط</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Product Tabs Section -->
+<section class="product-tabs">
+    <div class="container">
+        <div class="tabs-navigation">
+            <button class="tab-btn active" onclick="switchTab('description')">الوصف التفصيلي</button>
+            <button class="tab-btn" onclick="switchTab('specifications')">المواصفات</button>
+            <button class="tab-btn" onclick="switchTab('reviews')">التقييمات ({{ product.rating.count }})</button>
+            <button class="tab-btn" onclick="switchTab('shipping')">الشحن والإرجاع</button>
+        </div>
+        
+        <div class="tabs-content">
+            <!-- Description Tab -->
+            <div id="description" class="tab-content active">
+                <div class="detailed-description">
+                    {{ product.description | raw }}
+                    
+                    {% if product.specifications %}
+                        <h4>المميزات الرئيسية:</h4>
+                        <ul class="features-list">
+                            {% for spec in product.specifications %}
+                                <li>{{ spec.name }}: {{ spec.value }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Specifications Tab -->
+            <div id="specifications" class="tab-content">
+                {% if product.specifications %}
+                    <div class="specifications-table">
+                        <table>
+                            <tbody>
+                                {% for spec in product.specifications %}
+                                    <tr>
+                                        <td class="spec-name">{{ spec.name }}</td>
+                                        <td class="spec-value">{{ spec.value }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p>لا توجد مواصفات متاحة لهذا المنتج.</p>
+                {% endif %}
+            </div>
+            
+            <!-- Reviews Tab -->
+            <div id="reviews" class="tab-content">
+                <div class="reviews-section">
+                    <div class="reviews-summary">
+                        <div class="average-rating">
+                            <span class="rating-number">{{ product.rating.average }}</span>
+                            <div class="stars-large">
+                                {% for i in 1..5 %}
+                                    <span class="star {{ i <= product.rating.average ? 'filled' : '' }}">★</span>
+                                {% endfor %}
+                            </div>
+                            <span class="total-reviews">{{ product.rating.count }} تقييم</span>
+                        </div>
+                        
+                        <div class="rating-breakdown">
+                            {% for i in 5..1 %}
+                                <div class="rating-bar">
+                                    <span class="stars">{{ i }} ★</span>
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: {{ (product.rating.distribution[i] / product.rating.count * 100) }}%"></div>
+                                    </div>
+                                    <span class="count">{{ product.rating.distribution[i] }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Individual Reviews -->
+                    <div class="reviews-list">
+                        {% for review in product.reviews %}
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="reviewer-info">
+                                        <span class="reviewer-name">{{ review.customer_name }}</span>
+                                        <div class="review-stars">
+                                            {% for i in 1..5 %}
+                                                <span class="star {{ i <= review.rating ? 'filled' : '' }}">★</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <span class="review-date">{{ review.created_at | date('d/m/Y') }}</span>
+                                </div>
+                                <div class="review-content">
+                                    <p>{{ review.comment }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        
+                        {% if product.reviews | length == 0 %}
+                            <p class="no-reviews">لا توجد تقييمات لهذا المنتج بعد. كن أول من يقيم!</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Add Review Form -->
+                    <div class="add-review-form">
+                        <h4>إضافة تقييم</h4>
+                        <form action="/reviews" method="POST">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            
+                            <div class="form-group">
+                                <label>التقييم</label>
+                                <div class="rating-input">
+                                    {% for i in 1..5 %}
+                                        <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}">
+                                        <label for="star{{ i }}" class="star-label">★</label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="review-comment">تعليقك</label>
+                                <textarea id="review-comment" name="comment" rows="4" placeholder="شاركنا رأيك في المنتج..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">إرسال التقييم</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Shipping Tab -->
+            <div id="shipping" class="tab-content">
+                <div class="shipping-info">
+                    <h4>معلومات الشحن</h4>
+                    <ul>
+                        <li>شحن مجاني للطلبات أكثر من 200 ريال</li>
+                        <li>التوصيل خلال 1-3 أيام عمل داخل المملكة</li>
+                        <li>التوصيل خلال 5-7 أيام عمل خارج المملكة</li>
+                        <li>تتبع الشحنة متاح عبر رسائل SMS</li>
+                    </ul>
+                    
+                    <h4>سياسة الإرجاع</h4>
+                    <ul>
+                        <li>إمكانية الإرجاع خلال 7 أيام من تاريخ الاستلام</li>
+                        <li>يجب أن يكون المنتج في حالته الأصلية</li>
+                        <li>استرداد كامل للمبلغ المدفوع</li>
+                        <li>مجاني للمنتجات المعيبة أو الخاطئة</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Products -->
+{% if related_products %}
+<section class="related-products">
+    <div class="container">
+        <h2 class="section-title">منتجات ذات صلة</h2>
+        <div class="products-carousel">
+            {% for product in related_products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        <a href="{{ product.url }}">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                        </a>
+                        {% if product.sale_price %}
+                            <span class="discount-badge">-{{ ((product.regular_price - product.sale_price) / product.regular_price * 100) | round }}%</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">
+                            <a href="{{ product.url }}">{{ product.name }}</a>
+                        </h3>
+                        <div class="product-price">
+                            {% if product.sale_price %}
+                                <span class="current-price">{{ product.sale_price }} ريال</span>
+                                <span class="original-price">{{ product.regular_price }} ريال</span>
+                            {% else %}
+                                <span class="current-price">{{ product.price }} ريال</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Sticky Add to Cart Button (Mobile) -->
+<div class="sticky-cart-mobile">
+    <div class="sticky-cart-content">
+        <div class="product-summary">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="mini-image">
+            <div class="price-summary">
+                {% if product.sale_price %}
+                    <span class="price">{{ product.sale_price }} ريال</span>
+                {% else %}
+                    <span class="price">{{ product.price }} ريال</span>
+                {% endif %}
+            </div>
+        </div>
+        <button class="btn btn-primary sticky-add-cart" onclick="addToCart()">
+            إضافة للسلة
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Product image gallery
+function changeMainImage(imageUrl, thumbnail) {
+    document.getElementById('mainProductImage').src = imageUrl;
+    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+    thumbnail.classList.add('active');
+}
+
+// Image zoom functionality
+function openImageZoom() {
+    const mainImage = document.getElementById('mainProductImage');
+    const modal = document.createElement('div');
+    modal.className = 'image-zoom-modal';
+    modal.innerHTML = `
+        <div class="zoom-overlay" onclick="closeImageZoom()">
+            <img src="${mainImage.src}" alt="صورة مكبرة">
+            <button class="close-zoom" onclick="closeImageZoom()">×</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImageZoom() {
+    const modal = document.querySelector('.image-zoom-modal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Quantity controls
+function changeQuantity(change) {
+    const quantityInput = document.getElementById('quantity');
+    const currentValue = parseInt(quantityInput.value);
+    const newValue = currentValue + change;
+    
+    if (newValue >= 1 && newValue <= parseInt(quantityInput.max)) {
+        quantityInput.value = newValue;
+    }
+}
+
+// Tab switching
+function switchTab(tabName) {
+    // Remove active class from all tabs and buttons
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    
+    // Add active class to selected tab and button
+    document.getElementById(tabName).classList.add('active');
+    event.target.classList.add('active');
+}
+
+// Add to cart functionality
+function addToCart() {
+    const quantity = document.getElementById('quantity').value;
+    const button = document.querySelector('.btn-add-cart');
+    const originalText = button.innerHTML;
+    
+    // Get selected options
+    const selectedOptions = {};
+    document.querySelectorAll('[name^="option_"]').forEach(input => {
+        if (input.type === 'radio' && input.checked) {
+            selectedOptions[input.name] = input.value;
+        } else if (input.type === 'select-one') {
+            selectedOptions[input.name] = input.value;
+        }
+    });
+    
+    // Add loading state
+    button.innerHTML = '<span class="loading">جاري الإضافة...</span>';
+    button.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        button.innerHTML = '<span class="success">تمت الإضافة ✓</span>';
+        
+        // Update cart count in header
+        const cartCount = document.querySelector('.cart-count');
+        if (cartCount) {
+            cartCount.textContent = parseInt(cartCount.textContent) + parseInt(quantity);
+        }
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 2000);
+    }, 1500);
+}
+
+// Buy now functionality
+function buyNow() {
+    addToCart();
+    setTimeout(() => {
+        window.location.href = '/cart';
+    }, 2000);
+}
+
+// Wishlist toggle
+function toggleWishlist() {
+    const button = document.querySelector('.btn-wishlist');
+    const icon = button.querySelector('.wishlist-icon');
+    
+    button.classList.toggle('active');
+    icon.textContent = button.classList.contains('active') ? '♥' : '♡';
+    
+    // Show notification
+    const notification = document.createElement('div');
+    notification.className = 'wishlist-notification';
+    notification.textContent = button.classList.contains('active') ? 
+        'تمت الإضافة للمفضلة' : 'تمت الإزالة من المفضلة';
+    
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// Social sharing functions
+function shareOnWhatsApp() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`اكتشف ${document.querySelector('.product-title').textContent} في متجر نور`);
+    window.open(`https://api.whatsapp.com/send?text=${text} ${url}`, '_blank');
+}
+
+function shareOnTwitter() {
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent(`اكتشف ${document.querySelector('.product-title').textContent} في متجر نور`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+}
+
+function shareOnFacebook() {
+    const url = encodeURIComponent(window.location.href);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+}
+
+function copyProductLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        const button = document.querySelector('.copy-link');
+        const originalText = button.textContent;
+        button.textContent = 'تم النسخ ✓';
+        setTimeout(() => {
+            button.textContent = originalText;
+        }, 2000);
+    });
+}
+
+// Review form stars
+document.querySelectorAll('.rating-input .star-label').forEach((star, index) => {
+    star.addEventListener('click', () => {
+        document.querySelectorAll('.rating-input .star-label').forEach((s, i) => {
+            s.classList.toggle('active', i <= index);
+        });
+    });
+});
+
+// Sticky cart visibility on mobile
+window.addEventListener('scroll', () => {
+    const stickyCart = document.querySelector('.sticky-cart-mobile');
+    const purchaseSection = document.querySelector('.purchase-section');
+    
+    if (purchaseSection && stickyCart) {
+        const rect = purchaseSection.getBoundingClientRect();
+        stickyCart.style.display = rect.bottom < 0 ? 'block' : 'none';
+    }
+});
+</script>
+{% endblock %}

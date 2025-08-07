@@ -1,0 +1,662 @@
+{% extends "layouts/master.twig" %}
+
+{% block title %}{{ landing.title ?: "عرض خاص" }} - {{ store.name }}{% endblock %}
+
+{% block meta %}
+    <meta name="description" content="{{ landing.description | striptags | slice(0, 160) }}">
+    <meta property="og:title" content="{{ landing.title }}">
+    <meta property="og:description" content="{{ landing.description | striptags | slice(0, 160) }}">
+    <meta property="og:image" content="{{ landing.hero_image.url }}">
+    <meta name="robots" content="index, follow">
+{% endblock %}
+
+{% block body_class %}landing-page{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="landing-hero">
+    <div class="hero-background" style="background-image: url('{{ landing.hero_image.url ?: asset('assets/hero.jpg') }}');">
+        <div class="hero-overlay"></div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-text">{{ landing.badge_text ?: "عرض محدود" }}</span>
+                </div>
+                
+                <h1 class="hero-title">{{ landing.title ?: "عرض استثنائي لفترة محدودة" }}</h1>
+                
+                <div class="hero-subtitle">
+                    {{ landing.subtitle ?: "اكتشف مجموعة مختارة من أفخم المنتجات بأسعار لا تُصدق" }}
+                </div>
+                
+                {% if landing.discount_percentage %}
+                    <div class="discount-highlight">
+                        <span class="discount-text">خصم حتى</span>
+                        <span class="discount-percentage">{{ landing.discount_percentage }}%</span>
+                    </div>
+                {% endif %}
+                
+                <!-- Countdown Timer -->
+                {% if landing.end_date %}
+                    <div class="countdown-timer" data-end-date="{{ landing.end_date }}">
+                        <div class="countdown-label">ينتهي العرض خلال:</div>
+                        <div class="countdown-display">
+                            <div class="time-unit">
+                                <span class="time-number" id="days">00</span>
+                                <span class="time-label">يوم</span>
+                            </div>
+                            <div class="time-unit">
+                                <span class="time-number" id="hours">00</span>
+                                <span class="time-label">ساعة</span>
+                            </div>
+                            <div class="time-unit">
+                                <span class="time-number" id="minutes">00</span>
+                                <span class="time-label">دقيقة</span>
+                            </div>
+                            <div class="time-unit">
+                                <span class="time-number" id="seconds">00</span>
+                                <span class="time-label">ثانية</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                
+                <div class="hero-actions">
+                    <a href="#featured-products" class="btn btn-primary btn-lg hero-cta">
+                        {{ landing.cta_text ?: "تسوق الآن" }}
+                    </a>
+                    <a href="#offer-details" class="btn btn-outline btn-lg">
+                        تفاصيل العرض
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Trust Indicators -->
+<section class="trust-indicators">
+    <div class="container">
+        <div class="indicators-grid">
+            <div class="indicator-item">
+                <div class="indicator-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"></path>
+                        <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+                        <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+                    </svg>
+                </div>
+                <div class="indicator-text">
+                    <h4>جودة مضمونة</h4>
+                    <p>منتجات أصلية 100%</p>
+                </div>
+            </div>
+            
+            <div class="indicator-item">
+                <div class="indicator-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="3" width="15" height="13"></rect>
+                        <polygon points="16,8 20,8 23,11 23,16 20,16 20,13 16,13"></polygon>
+                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                    </svg>
+                </div>
+                <div class="indicator-text">
+                    <h4>شحن سريع</h4>
+                    <p>توصيل خلال 24 ساعة</p>
+                </div>
+            </div>
+            
+            <div class="indicator-item">
+                <div class="indicator-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path>
+                        <path d="M8 1v4"></path>
+                        <path d="M16 1v4"></path>
+                    </svg>
+                </div>
+                <div class="indicator-text">
+                    <h4>إرجاع مجاني</h4>
+                    <p>خلال 7 أيام</p>
+                </div>
+            </div>
+            
+            <div class="indicator-item">
+                <div class="indicator-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0110 0v4"></path>
+                    </svg>
+                </div>
+                <div class="indicator-text">
+                    <h4>دفع آمن</h4>
+                    <p>معاملات مشفرة</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="featured-products" id="featured-products">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">{{ landing.products_title ?: "منتجات العرض المميزة" }}</h2>
+            <p class="section-subtitle">{{ landing.products_subtitle ?: "مجموعة مختارة من أفضل منتجاتنا بأسعار مخفضة" }}</p>
+        </div>
+        
+        <div class="products-showcase">
+            {% if landing.featured_products %}
+                {% for product in landing.featured_products %}
+                    <div class="showcase-product" data-product-id="{{ product.id }}">
+                        <div class="product-image">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            
+                            <!-- Discount Badge -->
+                            {% if product.sale_price %}
+                                <div class="discount-badge">
+                                    <span class="discount-percent">-{{ ((product.regular_price - product.sale_price) / product.regular_price * 100) | round }}%</span>
+                                    <span class="save-amount">وفر {{ product.regular_price - product.sale_price }} ريال</span>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Limited Stock Indicator -->
+                            {% if product.stock < 10 %}
+                                <div class="stock-warning">
+                                    <span>متبقي {{ product.stock }} قطع فقط!</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="product-details">
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <p class="product-description">{{ product.summary | slice(0, 120) }}...</p>
+                            
+                            <div class="product-rating">
+                                <div class="stars">
+                                    {% for i in 1..5 %}
+                                        <span class="star {{ i <= product.rating.average ? 'filled' : '' }}">★</span>
+                                    {% endfor %}
+                                </div>
+                                <span class="rating-count">({{ product.rating.count }} تقييم)</span>
+                            </div>
+                            
+                            <div class="price-section">
+                                {% if product.sale_price %}
+                                    <div class="price-row">
+                                        <span class="current-price">{{ product.sale_price }} ريال</span>
+                                        <span class="original-price">{{ product.regular_price }} ريال</span>
+                                    </div>
+                                    <div class="savings-text">
+                                        توفر {{ product.regular_price - product.sale_price }} ريال
+                                    </div>
+                                {% else %}
+                                    <span class="current-price">{{ product.price }} ريال</span>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Product Features -->
+                            {% if product.key_features %}
+                                <ul class="product-features">
+                                    {% for feature in product.key_features | slice(0, 3) %}
+                                        <li>{{ feature }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                            
+                            <div class="product-actions">
+                                {% if product.is_available %}
+                                    <button class="btn btn-primary btn-add-cart" onclick="addToCart({{ product.id }})">
+                                        <span class="btn-text">إضافة للسلة</span>
+                                        <span class="btn-icon">🛒</span>
+                                    </button>
+                                    <a href="{{ product.url }}" class="btn btn-outline">عرض التفاصيل</a>
+                                {% else %}
+                                    <button class="btn btn-disabled" disabled>غير متوفر</button>
+                                {% endif %}
+                                
+                                <button class="btn-wishlist" onclick="toggleWishlist({{ product.id }})" title="إضافة للمفضلة">
+                                    <span class="wishlist-icon">♡</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <!-- Default products if none specified -->
+                <div class="showcase-product">
+                    <div class="product-image">
+                        <img src="{{ asset('assets/products/wood_perfume.jpg') }}" alt="عطر خشبي فاخر">
+                        <div class="discount-badge">
+                            <span class="discount-percent">-15%</span>
+                            <span class="save-amount">وفر 51 ريال</span>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <h3 class="product-name">عطر خشبي فاخر</h3>
+                        <p class="product-description">عطر رجالي فاخر بنكهة خشبية مميزة يدوم طويلاً ويناسب جميع المناسبات...</p>
+                        <div class="product-rating">
+                            <div class="stars">★★★★★</div>
+                            <span class="rating-count">(24 تقييم)</span>
+                        </div>
+                        <div class="price-section">
+                            <div class="price-row">
+                                <span class="current-price">٢٩٩ ريال</span>
+                                <span class="original-price">٣٥٠ ريال</span>
+                            </div>
+                            <div class="savings-text">توفر 51 ريال</div>
+                        </div>
+                        <ul class="product-features">
+                            <li>تركيبة طبيعية 100%</li>
+                            <li>يدوم حتى 12 ساعة</li>
+                            <li>عبوة أنيقة 100مل</li>
+                        </ul>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-add-cart">
+                                <span class="btn-text">إضافة للسلة</span>
+                                <span class="btn-icon">🛒</span>
+                            </button>
+                            <a href="/products/wood-perfume" class="btn btn-outline">عرض التفاصيل</a>
+                            <button class="btn-wishlist" title="إضافة للمفضلة">
+                                <span class="wishlist-icon">♡</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="showcase-product">
+                    <div class="product-image">
+                        <img src="{{ asset('assets/products/leather_watch.jpg') }}" alt="ساعة جلد أنيقة">
+                        <div class="discount-badge">
+                            <span class="discount-percent">-20%</span>
+                            <span class="save-amount">وفر 90 ريال</span>
+                        </div>
+                        <div class="stock-warning">
+                            <span>متبقي 5 قطع فقط!</span>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <h3 class="product-name">ساعة جلد أنيقة</h3>
+                        <p class="product-description">ساعة جلد طبيعي بتصميم كلاسيكي أنيق مع آلية سويسرية عالية الجودة...</p>
+                        <div class="product-rating">
+                            <div class="stars">★★★★☆</div>
+                            <span class="rating-count">(18 تقييم)</span>
+                        </div>
+                        <div class="price-section">
+                            <div class="price-row">
+                                <span class="current-price">٣٦٠ ريال</span>
+                                <span class="original-price">٤٥٠ ريال</span>
+                            </div>
+                            <div class="savings-text">توفر 90 ريال</div>
+                        </div>
+                        <ul class="product-features">
+                            <li>جلد طبيعي عالي الجودة</li>
+                            <li>آلية سويسرية</li>
+                            <li>مقاوم للماء</li>
+                        </ul>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-add-cart">
+                                <span class="btn-text">إضافة للسلة</span>
+                                <span class="btn-icon">🛒</span>
+                            </button>
+                            <a href="/products/leather-watch" class="btn btn-outline">عرض التفاصيل</a>
+                            <button class="btn-wishlist" title="إضافة للمفضلة">
+                                <span class="wishlist-icon">♡</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="showcase-product">
+                    <div class="product-image">
+                        <img src="{{ asset('assets/products/musk_candle.jpg') }}" alt="شمعة مسك طبيعية">
+                        <div class="discount-badge">
+                            <span class="discount-percent">-25%</span>
+                            <span class="save-amount">وفر 30 ريال</span>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <h3 class="product-name">شمعة مسك طبيعية</h3>
+                        <p class="product-description">شمعة عطرية طبيعية برائحة المسك الفاخرة، مصنوعة من الشمع الطبيعي...</p>
+                        <div class="product-rating">
+                            <div class="stars">★★★★★</div>
+                            <span class="rating-count">(31 تقييم)</span>
+                        </div>
+                        <div class="price-section">
+                            <div class="price-row">
+                                <span class="current-price">٩٠ ريال</span>
+                                <span class="original-price">١٢٠ ريال</span>
+                            </div>
+                            <div class="savings-text">توفر 30 ريال</div>
+                        </div>
+                        <ul class="product-features">
+                            <li>شمع طبيعي 100%</li>
+                            <li>مدة الاحتراق 40 ساعة</li>
+                            <li>عبوة زجاجية فاخرة</li>
+                        </ul>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-add-cart">
+                                <span class="btn-text">إضافة للسلة</span>
+                                <span class="btn-icon">🛒</span>
+                            </button>
+                            <a href="/products/musk-candle" class="btn btn-outline">عرض التفاصيل</a>
+                            <button class="btn-wishlist" title="إضافة للمفضلة">
+                                <span class="wishlist-icon">♡</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        
+        <div class="section-footer">
+            <a href="/categories/all" class="btn btn-primary btn-lg">
+                عرض جميع المنتجات
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Offer Details -->
+<section class="offer-details" id="offer-details">
+    <div class="container">
+        <div class="details-layout">
+            <div class="details-content">
+                <h2>{{ landing.details_title ?: "تفاصيل العرض الاستثنائي" }}</h2>
+                
+                <div class="offer-benefits">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">💎</div>
+                        <div class="benefit-text">
+                            <h4>جودة فائقة</h4>
+                            <p>منتجات مختارة بعناية من أفضل العلامات التجارية العالمية</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🎯</div>
+                        <div class="benefit-text">
+                            <h4>أسعار حصرية</h4>
+                            <p>خصومات تصل إلى 50% على مجموعة واسعة من المنتجات المميزة</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-text">
+                            <h4>عرض محدود</h4>
+                            <p>فرصة لا تُفوت للحصول على منتجات فاخرة بأسعار مذهلة</p>
+                        </div>
+                    </div>
+                    
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🚀</div>
+                        <div class="benefit-text">
+                            <h4>شحن سريع</h4>
+                            <p>توصيل مجاني وسريع لجميع طلبات العرض الخاص</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="terms-conditions">
+                    <h3>الشروط والأحكام</h3>
+                    <ul>
+                        <li>العرض ساري حتى {{ landing.end_date | date('d/m/Y') ?: "نفاد الكمية" }}</li>
+                        <li>لا يمكن جمع هذا العرض مع عروض أخرى</li>
+                        <li>الكميات محدودة وحسب التوفر</li>
+                        <li>يحق للمتجر تعديل أو إلغاء العرض دون إشعار مسبق</li>
+                        <li>الأسعار شاملة ضريبة القيمة المضافة</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="details-sidebar">
+                <div class="offer-summary">
+                    <h3>ملخص العرض</h3>
+                    <div class="summary-item">
+                        <span class="label">الخصم:</span>
+                        <span class="value">حتى {{ landing.discount_percentage ?: "50" }}%</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">المنتجات:</span>
+                        <span class="value">{{ landing.products_count ?: "100+" }} منتج</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">الشحن:</span>
+                        <span class="value">مجاني</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">الضمان:</span>
+                        <span class="value">سنة كاملة</span>
+                    </div>
+                    
+                    <a href="#featured-products" class="btn btn-primary btn-block">
+                        ابدأ التسوق الآن
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="final-cta">
+    <div class="container">
+        <div class="cta-content">
+            <h2>لا تفوت هذه الفرصة الذهبية!</h2>
+            <p>اكتشف عالماً من الفخامة والجودة بأسعار استثنائية</p>
+            
+            {% if landing.end_date %}
+                <div class="urgency-timer">
+                    <span>العرض ينتهي خلال:</span>
+                    <div class="mini-countdown">
+                        <span id="final-days">00</span>:
+                        <span id="final-hours">00</span>:
+                        <span id="final-minutes">00</span>:
+                        <span id="final-seconds">00</span>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="cta-actions">
+                <a href="#featured-products" class="btn btn-primary btn-lg">
+                    تسوق الآن واستفد من العرض
+                </a>
+                <p class="guarantee-text">
+                    <span class="guarantee-icon">🛡️</span>
+                    ضمان استرجاع المبلغ خلال 30 يوم
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Countdown Timer
+function initCountdown() {
+    const endDate = document.querySelector('.countdown-timer')?.dataset.endDate;
+    if (!endDate) return;
+    
+    const targetDate = new Date(endDate).getTime();
+    
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const timeLeft = targetDate - now;
+        
+        if (timeLeft > 0) {
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            // Update main countdown
+            document.getElementById('days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+            
+            // Update final countdown
+            if (document.getElementById('final-days')) {
+                document.getElementById('final-days').textContent = days.toString().padStart(2, '0');
+                document.getElementById('final-hours').textContent = hours.toString().padStart(2, '0');
+                document.getElementById('final-minutes').textContent = minutes.toString().padStart(2, '0');
+                document.getElementById('final-seconds').textContent = seconds.toString().padStart(2, '0');
+            }
+        } else {
+            // Timer expired
+            document.querySelector('.countdown-timer').innerHTML = '<div class="expired">انتهى العرض</div>';
+            document.querySelector('.mini-countdown')?.innerHTML = '<span class="expired">انتهى العرض</span>';
+        }
+    }
+    
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+}
+
+// Smooth scrolling for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
+
+// Add to cart functionality
+function addToCart(productId) {
+    const button = event.target.closest('.btn-add-cart');
+    const originalText = button.innerHTML;
+    
+    // Add loading state
+    button.innerHTML = '<span class="loading">جاري الإضافة...</span>';
+    button.disabled = true;
+    
+    // Simulate API call
+    setTimeout(() => {
+        button.innerHTML = '<span class="success">تمت الإضافة ✓</span>';
+        
+        // Show success notification
+        showNotification('تمت إضافة المنتج للسلة بنجاح', 'success');
+        
+        // Update cart count in header if exists
+        const cartCount = document.querySelector('.cart-count');
+        if (cartCount) {
+            cartCount.textContent = parseInt(cartCount.textContent) + 1;
+        }
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 2000);
+    }, 1500);
+}
+
+// Wishlist toggle
+function toggleWishlist(productId) {
+    const button = event.target.closest('.btn-wishlist');
+    const icon = button.querySelector('.wishlist-icon');
+    
+    button.classList.toggle('active');
+    icon.textContent = button.classList.contains('active') ? '♥' : '♡';
+    
+    const message = button.classList.contains('active') ? 
+        'تمت الإضافة للمفضلة' : 'تمت الإزالة من المفضلة';
+    
+    showNotification(message, 'info');
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Intersection Observer for animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in');
+        }
+    });
+}, observerOptions);
+
+// Observe elements for animation
+document.querySelectorAll('.showcase-product, .benefit-item, .indicator-item').forEach(el => {
+    observer.observe(el);
+});
+
+// Parallax effect for hero section
+window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const hero = document.querySelector('.hero-background');
+    if (hero) {
+        hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+    }
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', () => {
+    initCountdown();
+    
+    // Add entrance animations
+    const heroContent = document.querySelector('.hero-content');
+    if (heroContent) {
+        setTimeout(() => {
+            heroContent.classList.add('animate-in');
+        }, 500);
+    }
+});
+
+// Track user engagement
+let engagementData = {
+    timeOnPage: 0,
+    scrollDepth: 0,
+    ctaClicks: 0
+};
+
+// Track time on page
+setInterval(() => {
+    engagementData.timeOnPage += 1;
+}, 1000);
+
+// Track scroll depth
+window.addEventListener('scroll', () => {
+    const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollTop = window.pageYOffset;
+    const scrollDepth = Math.round((scrollTop / scrollHeight) * 100);
+    
+    engagementData.scrollDepth = Math.max(engagementData.scrollDepth, scrollDepth);
+});
+
+// Track CTA clicks
+document.querySelectorAll('.hero-cta, .btn-add-cart').forEach(button => {
+    button.addEventListener('click', () => {
+        engagementData.ctaClicks += 1;
+    });
+});
+</script>
+{% endblock %}
